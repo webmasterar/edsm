@@ -1,0 +1,7 @@
+libsdsl/*
+sdsl-lite/*
+vcflib/
+experiments/realdata/data/*
+edsm
+*.o
+*.exe
