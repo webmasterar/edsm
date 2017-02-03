@@ -1,8 +1,23 @@
+/*
+    EDSM: Elastic Degenerate String Matching
+
+    Copyright (C) 2017 Chang Liu, Solon P. Pissis, Ahmad Retha and Fatima Vayani.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <iostream>
 #include <cstdlib>
 #include <string>
-#include <tuple>
 #include <vector>
 #include <ctime>
 #include <divsufsort64.h>
@@ -24,6 +39,8 @@ EDSM::EDSM()
     this->F = 0;
     this->d = 0;
     this->D = 0;
+    this->Np = 0;
+    this->Nm = 0;
     this->pos = 0;
     this->duration = 0;
     this->kmpBT = NULL;
@@ -119,7 +136,7 @@ void EDSM::constructKMPBT()
     {
         delete [] this->kmpBT;
     }
-    // construct border table of P for KMP search
+
     this->kmpBT = new int[this->m];
     this->kmpBT[0] = -1;
     int i, j;
@@ -192,6 +209,22 @@ unsigned int EDSM::getF() const
 }
 
 /**
+* Get the total number of strings analyzed that are shorter than m
+*/
+unsigned int EDSM::getNp() const
+{
+    return this->Np;
+}
+
+/**
+* Get the total length of the strings analyzed that are shorter than m
+*/
+unsigned int EDSM::getNm() const
+{
+    return this->Nm;
+}
+
+/**
 * Returns the execution duration of EDSM-BV in seconds
 */
 double EDSM::getDuration() const
@@ -200,8 +233,8 @@ double EDSM::getDuration() const
 }
 
 /**
-* Finds a node (w) in the STp where (a) is a substring of (P), then
-* proceeds to encode the children of (w) into a bit-vector (x).
+* Finds a node u (explicitNode) in the STp where (a) is a substring of (P), then
+* proceeds to encode the children of u into a bit-vector (M).
 *
 * @param a The substring to find in P
 * @return A bit-vector
@@ -211,8 +244,9 @@ WORD EDSM::occVector(const string & a)
     node_t explicitNode = this->STp.root();
     string::const_iterator it;
     uint64_t char_pos = 0;
-    unsigned int j;
-    for (j = 0, it = a.begin(); it != a.end(); ++it) {
+    unsigned int j = 0;
+    for (it = a.begin(); it != a.end(); ++it)
+    {
         if (forward_search(this->STp, explicitNode, it - a.begin(), *it, char_pos) > 0) {
             j++;
         } else {
@@ -220,32 +254,34 @@ WORD EDSM::occVector(const string & a)
         }
     }
 
-    WORD x = 0;
-
-    if (j == a.length()) {
-        this->recFindAllChildNodes(explicitNode, x);
+    //if a is present in p
+    if (j == a.length())
+    {
+        WORD M = 0;
+        this->recFindAllChildNodes(explicitNode, M);
+        return M;
     }
 
-    return x;
+    return 0;
 }
 
 /**
-* Recursively finds leaves in the tree from node n and updates x
+* Recursively finds leaves in the tree from node u and updates M
 *
-* @param n The starting node
-* @param x The bitvector where leaves string lengths are encoded to
+* @param u The starting node
+* @param M The bitvector where leaves string lengths are encoded to
 */
-void EDSM::recFindAllChildNodes(const node_t & n, WORD & x)
+void EDSM::recFindAllChildNodes(const node_t & u, WORD & M)
 {
-    if (this->STp.is_leaf(n))
+    if (this->STp.is_leaf(u))
     {
-        int l = (int)this->m - this->STp.sn(n); //sn(n) gets the suffix index from the leaf node n.
-        x = x | (1ul << l);
+        int l = (int)this->m - this->STp.sn(u); //sn(u) gets the suffix index from the leaf node u.
+        M = M | (1ul << l);
     }
     else
     {
-        for (const auto & child : this->STp.children(n)) {
-            this->recFindAllChildNodes(child, x);
+        for (const auto & child : this->STp.children(u)) {
+            this->recFindAllChildNodes(child, M);
         }
     }
 }
@@ -287,7 +323,7 @@ WORD EDSM::computePrefixBorderTable(const Segment & S)
     BT[j - 1] = 0;
 
     j = 0;
-    for (i = this->m + 1; i < km; i++) //i = this->m + 1 or i = 1
+    for (i = this->m + 1; i < km; i++)
     {
         BT[i - 1] = j;
         while (j >= 0 && k[j] != k[i]) {
@@ -297,7 +333,7 @@ WORD EDSM::computePrefixBorderTable(const Segment & S)
     }
     BT[km - 1] = j;
 
-    //See Example 3 in the paper. This is based on KMP search algorithm.
+    //See Example 12 in the paper. This is based on KMP algorithm.
     WORD B = 0;
     j = (int)this->m;
     for (s = S.begin(); s != S.end(); ++s)
@@ -322,7 +358,8 @@ WORD EDSM::computePrefixBorderTable(const Segment & S)
 
 /**
 * @deprecated Because EDSM::computePrefixBorderTable() has better Big O complexity
-* (linear). This method is sometimes faster but it has quadratic time complexity.
+* (linear). This method is sometimes faster in practice but it has quadratic time
+* complexity.
 *
 * Goes through the strings in a segment and returns a bitvector representing the
 * matching prefixes of the pattern in the suffix of the strings.
@@ -565,6 +602,8 @@ bool EDSM::searchNextSegment(const Segment & S)
 
                     if ((*stringI).length() < this->m)
                     {
+                        this->Np++;
+                        this->Nm += (*stringI).length();
                         B2 = this->B & this->occVector(*stringI);
                         B1 = B1 | (B2 >> (*stringI).length());
                     }
@@ -588,4 +627,3 @@ bool EDSM::searchNextSegment(const Segment & S)
 
     return matchFound;
 }
-

@@ -1,3 +1,19 @@
+/*
+    EDSM: Elastic Degenerate String Matching
+
+    Copyright (C) 2017 Chang Liu, Solon P. Pissis, Ahmad Retha and Fatima Vayani.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #ifndef __EDSM__
 #define __EDSM__
@@ -31,7 +47,6 @@ protected:
     /**
      * @var matches All matches found as tuples of segment number and ending-position
      */
-    //std::vector<std::tuple<const int, const int>>
     std::vector<int> matches;
 
     /**
@@ -63,6 +78,16 @@ protected:
      * @var D The number of degenerate segments searched so far
      */
     unsigned int D;
+
+    /**
+     * @var Np The total number of strings analyzed with length < m
+     */
+    unsigned int Np;
+
+    /**
+     * @var Nm The total length of strings analyzed with length < m
+     */
+    unsigned int Nm;
 
     /**
      * @var pos The current position in the input file being read. Degenerate
@@ -153,7 +178,10 @@ public:
 
     unsigned int getF() const;
 
+    unsigned int getNp() const;
+
+    unsigned int getNm() const;
+
 };
 
 #endif
-

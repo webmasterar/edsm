@@ -1,3 +1,19 @@
+/*
+    EDSM: Elastic Degenerate String Matching
+
+    Copyright (C) 2017 Chang Liu, Solon P. Pissis, Ahmad Retha and Fatima Vayani.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <cstdlib>
 #include <iostream>
@@ -11,7 +27,7 @@
 using namespace std;
 using namespace vcflib;
 
-char * BUFF = new char[BUFFERSIZE];
+char BUFF[BUFFERSIZE];
 int BUFFLIMIT = 0;
 int POS = 0;
 
@@ -314,7 +330,8 @@ int main(int argc, char * argv[])
     cout << "No. degenerate bases (F): " << edsm.getF() << endl;
     cout << "No. determinate segments (d): " << edsm.getd() << endl;
     cout << "No. degenerate segments (D): " << edsm.getD() << endl;
-    cout << "EDSM-BV searching duration: " << edsm.getDuration() << "s." << endl << endl;
+    cout << "No. strings processed shorter than pattern (N'): " << edsm.getNp() << endl;
+    cout << "EDSM-BV processing time: " << edsm.getDuration() << "s." << endl << endl;
 
     if (edsm.getMatches().size() >= 1)
     {
@@ -329,8 +346,5 @@ int main(int argc, char * argv[])
         cout << "No matches found." << endl;
     }
 
-    delete [] BUFF;
-
     return 0;
 }
-

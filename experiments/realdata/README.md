@@ -43,4 +43,3 @@ Then you can delete the old tbi file and create the new one by entering:
 `~$ rm ALL.chrY.phase3_integrated_v2a.20130502.genotypes.vcf.gz.tbi`
 
 `~$ tabix -p vcf ALL.chrY.phase3_integrated_v2a.20130502.genotypes.vcf.gz`
-
