@@ -152,8 +152,6 @@ protected:
 
     WORD occVector(const std::string & a);
 
-    void setPattern(const std::string & P);
-
 public:
 
     EDSM();
@@ -161,6 +159,8 @@ public:
     EDSM(const std::string & P);
 
     ~EDSM();
+
+    void setPattern(const std::string & P);
 
     bool searchNextSegment(const Segment & S);
 
