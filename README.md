@@ -8,7 +8,7 @@ If you make use of this software, please cite the following:
 
 ### How to Install
 
-`~$ ./pre-install.sh && make`
+You may need to install one or more libraries before compiling EDSM. Please read INSTALL.md.
 
 ### How to Execute
 
