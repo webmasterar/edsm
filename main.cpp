@@ -125,6 +125,7 @@ int main(int argc, char * argv[])
 
         //skip first line of fasta file
         getline(rf, tBuff);
+        tBuff = "";
 
         //create variables for reading through vcf records and looking for duplicates
         Variant var(vf), vBuffer(vf), var2(vf);
@@ -236,6 +237,7 @@ int main(int argc, char * argv[])
         }
         if (tBuff.length() > 0)
         {
+            segment.clear();
             segment.push_back(tBuff);
             edsm.searchNextSegment(segment);
             tBuff = "";
