@@ -262,7 +262,7 @@ int main(int argc, char * argv[])
         bool inDegSeg = false;
         unsigned int i = 0, j = 0;
 
-		//go through the sequence file
+        //go through the sequence file
         while ((c = getNextChar(eds)) != '\0')
         {
             if (i == 0 && c == '{')
@@ -293,24 +293,25 @@ int main(int argc, char * argv[])
                     case 'C':
                     case 'G':
                     case 'T':
+                    case 'N':
                     case EPSILON[0]:
-                    x += c;
-                    j++;
-                    if (!inDegSeg && j == BUFFERSIZE)
-                    {
-                        tempSeg.push_back(x);
-                        x = "";
-                        j = 0;
-                        edsm.searchNextSegment(tempSeg);
-                        tempSeg.clear();
-                    }
-                    else if (inDegSeg && j == (BUFFERSIZE + p.length()))
-                    {
-                        tempSeg.push_back(x.substr(0, BUFFERSIZE));
-                        x = x.substr(BUFFERSIZE - 1, p.length());
-                        j = p.length();
-                    }
-                    break;
+                        x += c;
+                        j++;
+                        if (!inDegSeg && j == BUFFERSIZE)
+                        {
+                            tempSeg.push_back(x);
+                            x = "";
+                            j = 0;
+                            edsm.searchNextSegment(tempSeg);
+                            tempSeg.clear();
+                        }
+                        else if (inDegSeg && j == (BUFFERSIZE + p.length()))
+                        {
+                            tempSeg.push_back(x.substr(0, BUFFERSIZE));
+                            x = x.substr(BUFFERSIZE - 1, p.length());
+                            j = p.length();
+                        }
+                        break;
                 }
             }
             i++;
