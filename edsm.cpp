@@ -315,7 +315,7 @@ WORD EDSM::computePrefixBorderTable(const Segment & S)
     km = k.length();
     int * BT = new int[km];
 
-    BT[0] = 0;
+    //BT[0] = 0;
     for (j = 1; j < (int)this->m; j++)
     {
         BT[j - 1] = this->kmpBT[j];
@@ -471,7 +471,7 @@ bool EDSM::searchNextSegment(const Segment & S)
 
     // set initial match found values
     unsigned int j;
-    int kmpStartPos, matchIdx = -1;
+    int kmpStartPos, matchIdx;
     bool reportOnce = true;
     bool matchFound = false;
     bool isDeterminateSegment = false;
@@ -507,9 +507,10 @@ bool EDSM::searchNextSegment(const Segment & S)
             if ((*stringI).length() >= this->m)
             {
                 kmpStartPos = 0;
+                matchIdx = -1;
                 while ((matchIdx = this->KMP(this->P, *stringI, this->kmpBT, kmpStartPos)) != -1)
                 {
-                    if (reportOnce && matchFound) {
+                    if (reportOnce && matchFound && !isDeterminateSegment) {
                         break;
                     }
                     if (isDeterminateSegment) {
@@ -519,7 +520,7 @@ bool EDSM::searchNextSegment(const Segment & S)
                     }
                     matchFound = true;
                     kmpStartPos = 2 + matchIdx - (int)this->m;
-                    if (reportOnce) {
+                    if (reportOnce && !isDeterminateSegment) {
                         break;
                     }
                 }
@@ -565,7 +566,7 @@ bool EDSM::searchNextSegment(const Segment & S)
                     matchIdx = -1;
                     while ((matchIdx = this->KMP(this->P, *stringI, this->kmpBT, kmpStartPos)) != -1)
                     {
-                        if (reportOnce && matchFound) {
+                        if (reportOnce && matchFound && !isDeterminateSegment) {
                             break;
                         }
                         if (isDeterminateSegment) {
@@ -575,7 +576,7 @@ bool EDSM::searchNextSegment(const Segment & S)
                         }
                         matchFound = true;
                         kmpStartPos = 2 + matchIdx - (int)this->m;
-                        if (reportOnce) {
+                        if (reportOnce && !isDeterminateSegment) {
                             break;
                         }
                     }
