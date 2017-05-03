@@ -5,8 +5,8 @@ CC=     g++
 CFLAGS= -O3 -D_USE_64 -msse4.2 -funroll-loops -fomit-frame-pointer
 
 LFLAGS= -std=c++11 -DNDEBUG -lz -lm -lpthread -I . \
-        -I ./libsdsl/include/ \
-		-L ./libsdsl/lib/ -lsdsl -ldivsufsort -ldivsufsort64 -Wl,-rpath=$(PWD)/libsdsl/lib \
+        -I ./sdsl-lite/include/ \
+        -L ./sdsl-lite/lib/ -lsdsl -ldivsufsort -ldivsufsort64 -Wl,-rpath=$(PWD)/sdsl-lite/lib \
         -I ./vcflib/tabixpp/ -I ./vcflib/tabixpp/htslib/ -I ./vcflib/smithwaterman/ -I ./vcflib/multichoose/ -I ./vcflib/filevercmp/ -I ./vcflib/src/ \
         -L ./vcflib/ -L ./vcflib/tabixpp/htslib/ -lvcflib -lhts -Wl,-rpath=$(PWD)/vcflib/ -Wl,-rpath=$(PWD)/vcflib/tabixpp/htslib/
 
@@ -38,6 +38,5 @@ clean:
 
 clean-all:
 	rm -f $(OBJ) $(EXE) *~
-	rm -r libsdsl
-	rm -r sdsl-lite
+	rm -rf sdsl-lite
 	rm -rf vcflib

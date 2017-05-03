@@ -124,7 +124,45 @@ void EDSM::setPattern(const string & P)
     //construct the suffix tree of P
     construct_im(this->STp, this->P.c_str(), sizeof(char));
 
+    //create occVector tool / data structure
+    this->constructOV();
+
     this->duration += clock() - start;
+}
+
+/**
+ * Construct the occVector tool / data structure and assign memory
+ */
+void EDSM::constructOV()
+{
+    this->OVMem.clear();
+    this->OVMem.assign(this->STp.nodes(), 0ul);
+    this->recAssignOVMem(this->STp.root());
+}
+
+/**
+ * Recursively traverse the Suffix Tree of P and work out its occVector encoding,
+ * combine if necessary, and store in occVector memory structure
+ *
+ * @param u A node in STp
+ * @return The encoded positions of substrings
+ */
+WORD EDSM::recAssignOVMem(const node_t & u)
+{
+    int id = this->STp.id(u);
+
+    if (this->STp.is_leaf(u))
+    {
+        this->OVMem[id] = 1ul << ((int)this->m - this->STp.sn(u)); //sn(u) gets the suffix index from leaf node u
+    }
+    else
+    {
+        for (const auto & child : this->STp.children(u)) {
+            this->OVMem[id] = this->OVMem[id] | this->recAssignOVMem(child);
+        }
+    }
+
+    return this->OVMem[id];
 }
 
 /**
@@ -257,33 +295,11 @@ WORD EDSM::occVector(const string & a)
     //if a is present in p
     if (j == a.length())
     {
-        WORD M = 0;
-        this->recFindAllChildNodes(explicitNode, M);
-        return M;
+        int id = this->STp.id(explicitNode);
+        return this->OVMem[id];
     }
 
     return 0;
-}
-
-/**
-* Recursively finds leaves in the tree from node u and updates M
-*
-* @param u The starting node
-* @param M The bitvector where leaves string lengths are encoded to
-*/
-void EDSM::recFindAllChildNodes(const node_t & u, WORD & M)
-{
-    if (this->STp.is_leaf(u))
-    {
-        int l = (int)this->m - this->STp.sn(u); //sn(u) gets the suffix index from the leaf node u.
-        M = M | (1ul << l);
-    }
-    else
-    {
-        for (const auto & child : this->STp.children(u)) {
-            this->recFindAllChildNodes(child, M);
-        }
-    }
 }
 
 /**
@@ -507,7 +523,6 @@ bool EDSM::searchNextSegment(const Segment & S)
             if ((*stringI).length() >= this->m)
             {
                 kmpStartPos = 0;
-                matchIdx = -1;
                 while ((matchIdx = this->KMP(this->P, *stringI, this->kmpBT, kmpStartPos)) != -1)
                 {
                     if (reportOnce && matchFound && !isDeterminateSegment) {
@@ -563,7 +578,6 @@ bool EDSM::searchNextSegment(const Segment & S)
                 if ((*stringI).length() >= this->m)
                 {
                     kmpStartPos = 0;
-                    matchIdx = -1;
                     while ((matchIdx = this->KMP(this->P, *stringI, this->kmpBT, kmpStartPos)) != -1)
                     {
                         if (reportOnce && matchFound && !isDeterminateSegment) {

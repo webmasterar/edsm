@@ -32,7 +32,7 @@ typedef cst_t::char_type char_t;
 typedef std::vector<std::string> Segment;
 typedef std::vector<Segment> GenIndSeq;
 #define WORD unsigned long int
-#define WORDSIZE sizeof(WORD) * 8
+#define WORDSIZE (sizeof(WORD) * 8)
 #define EPSILON "E"
 #define BUFFERSIZE 1000000
 
@@ -40,7 +40,7 @@ class EDSM
 {
 private:
 
-    void recFindAllChildNodes(const node_t & n, WORD & x);
+    WORD recAssignOVMem(const node_t & u);
 
 protected:
 
@@ -48,6 +48,11 @@ protected:
      * @var matches All matches found as tuples of segment number and ending-position
      */
     std::vector<int> matches;
+
+    /**
+     * @var OVMem Stores bitvectors representing positions of nodes in STp
+     */
+    std::vector<WORD> OVMem;
 
     /**
      * @var P The determinate pattern to find in T
@@ -151,6 +156,8 @@ protected:
     void report(const int s, const int i);
 
     WORD occVector(const std::string & a);
+
+    void constructOV();
 
 public:
 
